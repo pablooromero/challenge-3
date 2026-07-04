@@ -28,6 +28,6 @@ PYTHONPATH=. pytest tests
 
 - Lee `Ventas` y `Mora` desde el Sheet público vía `gviz/csv`.
 - Normaliza moneda, tildes/case, centinela vacío y checkbox.
-- Persiste estados `confirmed`, `unknown` y `quarantined`.
-- Tiene drivers Playwright para ambos forms y smoke test preparado.
-- Tiene fallback resiliente a `formResponse` cuando los widgets custom de Google Forms no responden bien a la automatización del browser.
+- Persiste estados `confirmed_prefill_browser`, `confirmed_http_fallback`, `unknown` y `quarantined`.
+- Usa URLs prellenadas como camino principal de Playwright para evitar widgets custom inestables y mantener navegación/verificación visual.
+- Tiene fallback resiliente a `formResponse` cuando el browser no logra confirmar la respuesta.
