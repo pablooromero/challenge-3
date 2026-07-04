@@ -68,7 +68,7 @@ def process_payloads(
     for payload in payloads:
         state_key = state_store.make_key(payload.id_cliente, payload.form_name)
         existing = current_state.get(state_key)
-        if existing and existing.status == SubmissionStatus.CONFIRMED:
+        if existing and existing.is_confirmed:
             continue
         if existing and existing.status == SubmissionStatus.UNKNOWN:
             continue
@@ -80,7 +80,8 @@ def process_payloads(
                 current_state,
                 payload.id_cliente,
                 payload.form_name,
-                SubmissionStatus.CONFIRMED,
+                SubmissionStatus.CONFIRMED_PREFILL_BROWSER,
+                reason="prefilled_url_browser",
             )
         except SubmissionUnknownError as exc:
             current_state = state_store.upsert(
@@ -103,7 +104,7 @@ def process_payloads(
                     current_state,
                     payload.id_cliente,
                     payload.form_name,
-                    SubmissionStatus.CONFIRMED,
+                    SubmissionStatus.CONFIRMED_HTTP_FALLBACK,
                     reason=f"http_fallback_after_browser_error: {exc}",
                 )
             else:

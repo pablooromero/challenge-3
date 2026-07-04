@@ -8,10 +8,9 @@ from app.models import FormPayload
 
 class MoraFormDriver(BaseGoogleFormDriver):
     def submit_payload(self, payload: FormPayload, evidence_dir: Path) -> None:
-        self.goto(payload.url)
-
+        self.goto_prefilled(payload)
         for field in payload.fields:
-            self.fill_field(field)
+            self.verify_prefilled_field(field)
 
         before_submit = evidence_dir / f"{payload.id_cliente}_mora_before_submit.png"
         self.capture(str(before_submit))
@@ -19,4 +18,3 @@ class MoraFormDriver(BaseGoogleFormDriver):
         self.wait_for_confirmation()
         confirmed = evidence_dir / f"{payload.id_cliente}_mora_confirmed.png"
         self.capture(str(confirmed))
-

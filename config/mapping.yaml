@@ -1,0 +1,145 @@
+forms:
+  ventas:
+    title: "Registro de Ventas"
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSfx7iW9XGsgU0jSFyv9yIcoDPAzqOHYK5Pj2fXHKIBAxZ1MgQ/viewform"
+    form_id: "1FAIpQLSfx7iW9XGsgU0jSFyv9yIcoDPAzqOHYK5Pj2fXHKIBAxZ1MgQ"
+    page_history: "0,1,2"
+    fields:
+      - name: id_cliente
+        source: ID_Cliente
+        label: "ID del Cliente"
+        type: text
+        required: true
+        page: 1
+        entry_id: "814069894"
+      - name: nombre_cliente
+        source: Nombre_Cliente
+        label: "Nombre Completo"
+        type: text
+        required: true
+        page: 1
+        entry_id: "657237802"
+      - name: email
+        source: Email
+        label: "Correo Electrónico"
+        type: text
+        required: true
+        page: 1
+        entry_id: "1855970967"
+      - name: telefono
+        source: Telefono
+        label: "Teléfono de Contacto"
+        type: text
+        required: true
+        page: 1
+        entry_id: "136415275"
+      - name: modelo_auto
+        source: Modelo_Auto
+        label: "Modelo de Automóvil"
+        type: dropdown
+        required: true
+        page: 2
+        entry_id: "2099080465"
+        transform: option_match
+        options:
+          - "Fiat Cronos"
+          - "600"
+          - "Fiat Fastback"
+          - "Fiat Pulse"
+          - "Fiat Strada"
+      - name: valor_vehiculo
+        source: Valor_Vehiculo
+        label: "Valor Total del Vehículo"
+        type: text
+        required: true
+        page: 2
+        entry_id: "1493778692"
+        transform: currency
+      - name: tipo_financiacion
+        source: Tipo_Financiacion
+        label: "Tipo de Financiación"
+        type: radio
+        required: true
+        page: 3
+        entry_id: "487326979"
+        transform: option_match
+        options:
+          - "Contado / Directo"
+          - "Plan de Ahorro"
+          - "Crédito Prendario"
+  mora:
+    title: "Control de Morosidad y Pagos"
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSd9KkkYFKRicadedg07Pj6sXvOXey4G5vLsqvKw4EZ_VRuKIQ/viewform"
+    form_id: "1FAIpQLSd9KkkYFKRicadedg07Pj6sXvOXey4G5vLsqvKw4EZ_VRuKIQ"
+    page_history: "0"
+    fields:
+      - name: id_cliente
+        source: ID_Cliente
+        label: "ID de Cliente Asociado"
+        type: text
+        required: true
+        page: 1
+        entry_id: "1568255357"
+      - name: nombre_cliente
+        source: Nombre_Cliente
+        label: "Nombre del Cliente"
+        type: text
+        required: false
+        page: 1
+        entry_id: "1088714979"
+      - name: valor_vehiculo
+        source: Valor_Vehiculo
+        label: "Valor del Vehículo"
+        type: text
+        required: true
+        page: 1
+        entry_id: "230995405"
+        transform: currency
+      - name: tipo_financiacion
+        source: Tipo_Financiacion
+        label: "Tipo Financiación"
+        type: dropdown
+        required: true
+        page: 1
+        entry_id: "191355245"
+        transform: option_match
+        options:
+          - "Contado / Directo"
+          - "Plan de Ahorro"
+          - "Crédito Prendario"
+      - name: estado_pago
+        source: Estado_Pago
+        label: "Estado de Cuenta Actual"
+        type: radio
+        required: true
+        page: 1
+        entry_id: "1430363473"
+        transform: option_match
+        options:
+          - "Al día"
+          - "Moroso"
+      - name: dias_atraso
+        source: Dias_Atraso
+        label: "Días de Atraso (Si aplica)"
+        type: text
+        required: true
+        page: 1
+        entry_id: "1824761040"
+      - name: ultimo_pago_monto
+        source: Ultimo_Pago_Monto
+        label: "Monto del Último Pago Registrado"
+        type: text
+        required: true
+        page: 1
+        entry_id: "1373856247"
+        transform: currency
+      - name: requiere_cobranza
+        source: Requiere_Cobranza
+        label: "Requiere Acción de Cobranza Legal"
+        type: checkbox
+        required: false
+        page: 1
+        entry_id: "76508310"
+        transform: checkbox_bool
+        options:
+          - "Sí, activar protocolo de cobranza legal"

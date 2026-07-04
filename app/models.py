@@ -13,7 +13,9 @@ class FormName(str, Enum):
 
 class SubmissionStatus(str, Enum):
     PENDING = "pending"
-    CONFIRMED = "confirmed"
+    CONFIRMED_BROWSER = "confirmed_browser"
+    CONFIRMED_PREFILL_BROWSER = "confirmed_prefill_browser"
+    CONFIRMED_HTTP_FALLBACK = "confirmed_http_fallback"
     UNKNOWN = "unknown"
     QUARANTINED = "quarantined"
 
@@ -80,3 +82,11 @@ class SubmissionRecord(BaseModel):
     form_name: FormName
     status: SubmissionStatus
     reason: str | None = None
+
+    @property
+    def is_confirmed(self) -> bool:
+        return self.status in {
+            SubmissionStatus.CONFIRMED_BROWSER,
+            SubmissionStatus.CONFIRMED_PREFILL_BROWSER,
+            SubmissionStatus.CONFIRMED_HTTP_FALLBACK,
+        }

@@ -15,7 +15,12 @@ class SubmissionStateStore:
         if not self.path.exists():
             return {}
         data = json.loads(self.path.read_text(encoding="utf-8"))
-        return {key: SubmissionRecord.model_validate(value) for key, value in data.items()}
+        migrated = {}
+        for key, value in data.items():
+            if value.get("status") == "confirmed":
+                value = {**value, "status": "confirmed_http_fallback"}
+            migrated[key] = SubmissionRecord.model_validate(value)
+        return migrated
 
     def save(self, state: dict[str, SubmissionRecord]) -> None:
         serialized = {
@@ -45,4 +50,3 @@ class SubmissionStateStore:
         )
         self.save(state)
         return state
-
