@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from app.masking import mask_pii
 from app.models import FormName, SubmissionRecord, SubmissionStatus
 
 
@@ -46,7 +47,7 @@ class SubmissionStateStore:
             id_cliente=id_cliente,
             form_name=form_name,
             status=status,
-            reason=reason,
+            reason=mask_pii(reason),
         )
         self.save(state)
         return state

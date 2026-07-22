@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 
+from app.masking import mask_pii
 from app.models import QuarantinedRecord, SubmissionRecord
 
 
@@ -20,5 +21,5 @@ def render_report(
     if quarantined:
         lines.append("Quarantine details:")
         for item in quarantined:
-            lines.append(f"- {item.id_cliente} / {item.form_name.value}: {item.reason}")
+            lines.append(f"- {item.id_cliente} / {item.form_name.value}: {mask_pii(item.reason)}")
     return "\n".join(lines)

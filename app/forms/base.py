@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+import re
+
 from playwright.sync_api import Locator, Page, expect
 
 from app.models import NormalizedField
 from app.prefill import build_prefilled_url
+
+CONFIRMATION_PATTERN = re.compile(
+    r"registr[óo]\s+tu\s+respuesta|tu\s+respuesta\s+se\s+ha\s+registrado",
+    re.IGNORECASE,
+)
 
 
 class FormFillError(RuntimeError):
@@ -104,7 +111,7 @@ class BaseGoogleFormDriver:
         self.page.get_by_role("button", name="Enviar", exact=True).click()
 
     def wait_for_confirmation(self) -> None:
-        expect(self.page.get_by_text("Se registró tu respuesta")).to_be_visible()
+        expect(self.page.get_by_text(CONFIRMATION_PATTERN)).to_be_visible()
 
     def capture(self, path: str) -> None:
         self.page.screenshot(path=path, full_page=True)

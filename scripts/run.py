@@ -15,10 +15,11 @@ def main() -> None:
         sheet_id=settings.sheet_id,
         verify_ssl=settings.sheets_verify_ssl,
     )
-    records = sheet_client.read_joined_records()
+    ingest = sheet_client.read_joined_records()
+    records = ingest.records
     state_store = SubmissionStateStore(settings.state_file)
     state = state_store.load()
-    quarantined = []
+    quarantined = list(ingest.quarantined)
     payloads = []
 
     for record in records:

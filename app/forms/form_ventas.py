@@ -7,7 +7,8 @@ from app.models import FormPayload
 
 
 class VentasFormDriver(BaseGoogleFormDriver):
-    def submit_payload(self, payload: FormPayload, evidence_dir: Path) -> None:
+    def prepare(self, payload: FormPayload, evidence_dir: Path) -> None:
+        """Fase idempotente: abre, navega secciones y verifica. No envia nada."""
         self.goto_prefilled(payload)
         self.page.get_by_role("button", name="Siguiente", exact=True).click()
         current_page = min(field.page for field in payload.fields)
@@ -20,9 +21,12 @@ class VentasFormDriver(BaseGoogleFormDriver):
                 self.page.get_by_role("button", name="Siguiente", exact=True).click()
             current_page += 1
 
-        before_submit = evidence_dir / f"{payload.id_cliente}_ventas_before_submit.png"
+        before_submit = Path(evidence_dir) / f"{payload.id_cliente}_ventas_before_submit.png"
         self.capture(str(before_submit))
+
+    def submit_and_confirm(self, payload: FormPayload, evidence_dir: Path) -> None:
+        """Fase de envio: ocurre una unica vez, nunca se reintenta a ciegas."""
         self.submit()
         self.wait_for_confirmation()
-        confirmed = evidence_dir / f"{payload.id_cliente}_ventas_confirmed.png"
+        confirmed = Path(evidence_dir) / f"{payload.id_cliente}_ventas_confirmed.png"
         self.capture(str(confirmed))

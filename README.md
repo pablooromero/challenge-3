@@ -133,6 +133,7 @@ Ejemplos utiles para revisar:
 - No hay secretos commiteados.
 - `state/submissions.json` y `evidence/` estan gitignored porque contienen datos de ejecucion y PII.
 - `config/mapping.yaml` si se commitea: no contiene secretos y es parte del contrato funcional Sheet -> Forms.
+- PII (emails, telefonos, montos) se enmascara en los `reason` persistidos en el estado y en el reporte via `app/masking.py`, incluso cuando provienen de una URL prellenada embebida en un mensaje de error.
 
 ## Nota tecnica
 

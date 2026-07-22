@@ -77,6 +77,15 @@ class QuarantinedRecord(BaseModel):
     reason: str
 
 
+class IngestResult(BaseModel):
+    """Resultado de la ingesta: registros validos + filas que no parsearon."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    records: list[ClientRecord] = Field(default_factory=list)
+    quarantined: list[QuarantinedRecord] = Field(default_factory=list)
+
+
 class SubmissionRecord(BaseModel):
     id_cliente: str
     form_name: FormName

@@ -2,14 +2,34 @@ from __future__ import annotations
 
 import csv
 from io import StringIO
+from typing import Type
 
 import httpx
+from pydantic import ValidationError
 
-from app.models import ClientRecord, MoraRow, VentaRow
+from app.models import (
+    ClientRecord,
+    FormName,
+    IngestResult,
+    MoraRow,
+    QuarantinedRecord,
+    SheetRowBase,
+    VentaRow,
+)
 
 
-def _normalize_headers(row: dict[str, str]) -> dict[str, str]:
-    return {key.strip(): value.strip() for key, value in row.items() if key}
+def _normalize_headers(row: dict[str, str | None]) -> dict[str, str]:
+    cleaned: dict[str, str] = {}
+    for key, value in row.items():
+        if not key:
+            continue
+        if isinstance(value, str):
+            cleaned[key.strip()] = value.strip()
+        elif value is None:
+            cleaned[key.strip()] = ""
+        else:
+            cleaned[key.strip()] = str(value)
+    return cleaned
 
 
 class PublicSheetsClient:
@@ -31,23 +51,48 @@ class PublicSheetsClient:
         reader = csv.DictReader(StringIO(content))
         return [_normalize_headers(row) for row in reader]
 
-    def read_ventas(self) -> list[VentaRow]:
-        return [VentaRow.model_validate(row) for row in self.read_sheet("Ventas")]
+    def _parse_rows(
+        self,
+        sheet_name: str,
+        model: Type[SheetRowBase],
+        form_name: FormName,
+    ) -> tuple[list[SheetRowBase], list[QuarantinedRecord]]:
+        """Parsea fila por fila: una fila invalida se cuarentena, no rompe la corrida."""
+        parsed: list[SheetRowBase] = []
+        errors: list[QuarantinedRecord] = []
+        for index, raw in enumerate(self.read_sheet(sheet_name)):
+            if not any(value for value in raw.values()):
+                continue  # fila totalmente vacia (artefacto de CSV)
+            try:
+                parsed.append(model.model_validate(raw))
+            except ValidationError as exc:
+                row_ref = raw.get("ID_Cliente") or f"{sheet_name}:row{index + 2}"
+                bad_fields = ", ".join(
+                    str(err["loc"][0]) for err in exc.errors() if err.get("loc")
+                )
+                errors.append(
+                    QuarantinedRecord(
+                        id_cliente=row_ref,
+                        form_name=form_name,
+                        reason=f"parse_error invalid/missing fields: {bad_fields}",
+                    )
+                )
+        return parsed, errors
 
-    def read_mora(self) -> list[MoraRow]:
-        return [MoraRow.model_validate(row) for row in self.read_sheet("Mora")]
+    def read_joined_records(self) -> IngestResult:
+        ventas, ventas_errors = self._parse_rows("Ventas", VentaRow, FormName.VENTAS)
+        mora, mora_errors = self._parse_rows("Mora", MoraRow, FormName.MORA)
 
-    def read_joined_records(self) -> list[ClientRecord]:
-        ventas_by_id = {row.id_cliente: row for row in self.read_ventas()}
-        mora_by_id = {row.id_cliente: row for row in self.read_mora()}
+        ventas_by_id = {row.id_cliente: row for row in ventas if row.id_cliente}
+        mora_by_id = {row.id_cliente: row for row in mora if row.id_cliente}
         ids = sorted(set(ventas_by_id) | set(mora_by_id))
 
-        return [
+        records = [
             ClientRecord(
                 id_cliente=record_id,
-                venta=ventas_by_id.get(record_id),
-                mora=mora_by_id.get(record_id),
+                venta=ventas_by_id.get(record_id),  # type: ignore[arg-type]
+                mora=mora_by_id.get(record_id),  # type: ignore[arg-type]
             )
             for record_id in ids
         ]
-
+        return IngestResult(records=records, quarantined=ventas_errors + mora_errors)
